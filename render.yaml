@@ -1,13 +1,10 @@
 services:
-  - type: web
+  - type: static
     name: exam-platform
-    env: node
-    plan: free
     buildCommand: npm ci && npm run build
-    startCommand: npm run start
+    staticPublishPath: ./out
     envVars:
       - key: NODE_VERSION
         value: "18"
-      - key: PORT
-        value: "10000"
-    healthCheckPath: /
+      - key: NEXT_PRIVATE_TARGET
+        value: "export"

@@ -2,8 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
-  // 优化云部署配置
-  output: 'standalone',
+  // 云部署优化配置
+  output: 'export', // 改为静态导出
+  trailingSlash: true, // 添加尾斜杠
+  skipTrailingSlashRedirect: true,
   // 允许外部图片
   images: {
     domains: [],
