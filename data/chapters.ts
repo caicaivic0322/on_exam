@@ -1,6 +1,7 @@
 import { Chapter, Question } from '@/types';
 import { cplusplusQuestions } from './questions/cplusplus';
 import { cplusplusHardQuestions } from './questions/cplusplus_hard';
+import { generatedQuestions } from './questions/generated_pool';
 
 export const chapters: Chapter[] = [
     { id: '1', title: '1 初识 C++' },
@@ -23,13 +24,19 @@ export const chapters: Chapter[] = [
 // Merge hard questions into the main question bank
 const mergedQuestionBank: Record<string, Question[]> = { ...cplusplusQuestions };
 
-Object.keys(cplusplusHardQuestions).forEach((key) => {
-    if (mergedQuestionBank[key]) {
-        mergedQuestionBank[key] = [...mergedQuestionBank[key], ...cplusplusHardQuestions[key]];
-    } else {
-        mergedQuestionBank[key] = cplusplusHardQuestions[key];
-    }
-});
+// Helper to merge questions
+const mergeQuestions = (target: Record<string, Question[]>, source: Record<string, Question[]>) => {
+    Object.keys(source).forEach((key) => {
+        if (target[key]) {
+            target[key] = [...target[key], ...source[key]];
+        } else {
+            target[key] = source[key];
+        }
+    });
+};
+
+mergeQuestions(mergedQuestionBank, cplusplusHardQuestions);
+mergeQuestions(mergedQuestionBank, generatedQuestions);
 
 // Export the real question bank
 export const questionBank: Record<string, Question[]> = mergedQuestionBank;
