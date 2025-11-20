@@ -11,17 +11,19 @@ export async function generateStaticParams() {
 }
 
 // 生成页面元数据
-export async function generateMetadata({ params }: { params: { chapterId: string } }) {
-    const chapter = chapters.find(ch => ch.id === params.chapterId);
+export async function generateMetadata({ params }: { params: Promise<{ chapterId: string }> }) {
+    const { chapterId } = await params;
+    const chapter = chapters.find(ch => ch.id === chapterId);
     return {
         title: chapter ? `${chapter.title} - Quiz` : 'Quiz',
         description: `${chapter?.title || 'Chapter'} quiz questions`,
     };
 }
 
-export default function QuizPage({ params }: { params: { chapterId: string } }) {
+export default async function QuizPage({ params }: { params: Promise<{ chapterId: string }> }) {
+    const { chapterId } = await params;
     // 在构建时生成测验数据
-    const quiz = generateQuiz(params.chapterId);
+    const quiz = generateQuiz(chapterId);
 
     return (
         <div>
