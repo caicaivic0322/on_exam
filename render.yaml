@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: exam-platform
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run build && npm run start
+    envVars:
+      - key: NODE_VERSION
+        value: "18"
+    healthCheckPath: /
