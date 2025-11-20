@@ -3,7 +3,7 @@ services:
     name: exam-platform
     buildCommand: npm ci && npm run build
     staticPublishPath: ./out
-    envVars:
+    envs:
       - key: NODE_VERSION
         value: "18"
       - key: NEXT_PRIVATE_TARGET
