@@ -1,9 +1,15 @@
 import { Question, Quiz } from '@/types';
 import { questionBank } from '@/data/chapters';
 
-export const generateQuiz = (chapterId: string): Quiz | null => {
+export const generateQuiz = (chapterId: string): Quiz => {
     const allQuestions = questionBank[chapterId];
-    if (!allQuestions) return null;
+    if (!allQuestions) {
+        // 如果没有找到问题，返回一个空的测验
+        return {
+            chapterId,
+            questions: []
+        };
+    }
 
     const mcqs = allQuestions.filter((q) => q.type === 'MCQ');
     const tfs = allQuestions.filter((q) => q.type === 'TF');

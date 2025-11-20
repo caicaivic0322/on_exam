@@ -18,7 +18,28 @@ export function QuizRunner({ quiz }: QuizRunnerProps) {
     const currentQuestion = quiz.questions[currentQuestionIndex];
     const totalQuestions = quiz.questions.length;
 
+    // 安全检查：确保测验有题目
+    if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+        return (
+            <div className="max-w-3xl mx-auto py-12 px-4 text-center">
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 className="text-2xl font-bold text-slate-900 mb-4">No Questions Available</h2>
+                    <p className="text-slate-600 mb-8">
+                        This chapter doesn't have any quiz questions yet.
+                    </p>
+                    <Link
+                        href="/"
+                        className="px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
+                    >
+                        Back to Dashboard
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
     const handleAnswer = (answer: string | boolean) => {
+        if (!currentQuestion) return;
         setAnswers((prev) => ({
             ...prev,
             [currentQuestion.id]: answer,

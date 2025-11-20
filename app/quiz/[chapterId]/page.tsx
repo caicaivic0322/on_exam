@@ -1,30 +1,27 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
 import { generateQuiz } from '@/utils/quizGenerator';
-import { Quiz } from '@/types';
 import { QuizRunner } from '@/components/QuizRunner';
-import { Loader2 } from 'lucide-react';
+import { chapters } from '@/data/chapters';
 
-export default function QuizPage() {
-    const params = useParams();
-    const [quiz, setQuiz] = useState<Quiz | null>(null);
+// 静态导出必需的函数
+export async function generateStaticParams() {
+    // 为所有章节生成静态参数
+    return chapters.map((chapter) => ({
+        chapterId: chapter.id,
+    }));
+}
 
-    useEffect(() => {
-        if (params.chapterId) {
-            const newQuiz = generateQuiz(params.chapterId as string);
-            setQuiz(newQuiz);
-        }
-    }, [params.chapterId]);
+// 生成页面元数据
+export async function generateMetadata({ params }: { params: { chapterId: string } }) {
+    const chapter = chapters.find(ch => ch.id === params.chapterId);
+    return {
+        title: chapter ? `${chapter.title} - Quiz` : 'Quiz',
+        description: `${chapter?.title || 'Chapter'} quiz questions`,
+    };
+}
 
-    if (!quiz) {
-        return (
-            <div className="flex items-center justify-center min-h-[50vh]">
-                <Loader2 className="animate-spin text-blue-600" size={32} />
-            </div>
-        );
-    }
+export default function QuizPage({ params }: { params: { chapterId: string } }) {
+    // 在构建时生成测验数据
+    const quiz = generateQuiz(params.chapterId);
 
     return (
         <div>
