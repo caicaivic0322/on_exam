@@ -1,7 +1,6 @@
 import { Chapter, Question } from '@/types';
 import { cplusplusQuestions } from './questions/cplusplus';
 import { cplusplusHardQuestions } from './questions/cplusplus_hard';
-import { generatedQuestions } from './questions/generated_pool';
 
 export const chapters: Chapter[] = [
     { id: '1', title: '1 初识 C++' },
@@ -36,7 +35,6 @@ const mergeQuestions = (target: Record<string, Question[]>, source: Record<strin
 };
 
 mergeQuestions(mergedQuestionBank, cplusplusHardQuestions);
-mergeQuestions(mergedQuestionBank, generatedQuestions);
 
 // Export the real question bank
 export const questionBank: Record<string, Question[]> = mergedQuestionBank;
