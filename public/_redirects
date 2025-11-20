@@ -1,0 +1,6 @@
+# SPA路由回退 - 确保所有路由都返回index.html
+/*    /index.html   200
+
+# 特殊路径处理
+/quiz/*    /index.html   200
+/_next/*   /_next/:splat   200

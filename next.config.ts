@@ -5,8 +5,9 @@ const nextConfig: NextConfig = {
   // 云部署优化配置
   output: 'export', // 静态导出
   distDir: 'out', // 明确指定输出目录
-  // 移除trailingSlash以避免静态服务器路由问题
-  skipTrailingSlashRedirect: true,
+  // 修复静态服务器路由问题
+  trailingSlash: false,
+  skipTrailingSlashRedirect: false,
   // 允许外部图片
   images: {
     domains: [],
