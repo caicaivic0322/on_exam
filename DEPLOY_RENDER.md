@@ -22,15 +22,18 @@
 3. **配置部署设置**
    - **Name**: `exam-platform`
    - **Environment**: `Node`
-   - **Build Command**: `npm install`
-   - **Start Command**: `npm run build && npm run start`
+   - **Build Command**: `npm ci && npm run build`
+   - **Start Command**: `npm run start`
    - **Plan**: 选择 `Free` (适合测试)
 
 4. **环境变量设置**
    在 Render 控制台的环境变量部分添加：
    ```
    NODE_VERSION = 18
+   PORT = 10000
    ```
+
+**注意**: 已优化 `render.yaml` 配置，现在会自动处理端口和构建流程。
 
 5. **部署**
    - 点击 "Create Web Service"
