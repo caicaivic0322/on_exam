@@ -1,85 +1,127 @@
 # Render 部署指南
 
-## 部署配置
+## 静态导出模式
 
-### 更新后的部署设置
+该项目使用 Next.js 静态导出模式部署到 Render 平台。
 
-本项目已配置为静态导出模式，适用于 Render 静态站点托管。
+### 部署配置
 
-**构建命令:**
-```bash
-npm ci && npm run build
-```
-
-**部署设置:**
-- **类型**: 静态网站 (Static)
-- **发布目录**: `./out`
-- **Node 版本**: 18
-
-### 配置文件说明
-
-#### render.yaml
+#### Render.yaml
 ```yaml
 services:
   - type: static
     name: exam-platform
     buildCommand: npm ci && npm run build
     staticPublishPath: ./out
-    envVars:
+    envs:
       - key: NODE_VERSION
         value: "18"
       - key: NEXT_PRIVATE_TARGET
         value: "export"
 ```
 
-#### next.config.ts
+#### Next.js 配置
 ```typescript
-const nextConfig: NextConfig = {
-  output: 'export', // 静态导出
-  trailingSlash: true, // 添加尾斜杠
+// next.config.ts
+const nextConfig = {
+  output: 'export',
+  trailingSlash: true,
   skipTrailingSlashRedirect: true,
   images: {
-    domains: [],
     unoptimized: true
+  },
+  experimental: {
+    reactCompiler: true
   },
   compress: true,
   poweredByHeader: false,
-  staticPageGenerationTimeout: 1000,
-};
+  generateEtags: false,
+  distDir: 'out',
+  assetPrefix: '',
+  basePath: '',
+  generateBuildId: async () => {
+    return 'build-' + Date.now()
+  }
+}
+
+module.exports = nextConfig
 ```
 
-## 部署步骤
+### 部署步骤
 
-1. **推送到 Git 仓库**
+1. **推送代码到 GitHub**
    ```bash
    git add .
-   git commit -m "更新 Render 部署配置为静态导出"
-   git push
+   git commit -m "提交信息"
+   git push origin master
    ```
 
-2. **在 Render 中创建新服务**
-   - 连接你的 Git 仓库
-   - 选择 "Static Site" 类型
-   - 设置构建命令: `npm ci && npm run build`
-   - 设置发布目录: `./out`
+2. **在 Render 上创建静态站点**
+   - 访问 [Render Dashboard](https://dashboard.render.com/)
+   - 点击 "New +" → "Static Site"
+   - 连接你的 GitHub 仓库
+   - 设置以下配置：
+     - **Build Command**: `npm ci && npm run build`
+     - **Publish Directory**: `./out`
+     - **Environment**: Node
+     - **Node Version**: `18`
 
-3. **配置环境变量**
+3. **环境变量设置**
    - `NODE_VERSION`: `18`
    - `NEXT_PRIVATE_TARGET`: `export`
 
-## 注意事项
+### 修复的问题
 
-- ✅ **已修复**: 移除 `output: 'standalone'`，改为 `output: 'export'`
-- ✅ **已修复**: 将 Render 类型从 `web` 改为 `static`
-- ✅ **已修复**: 设置正确的发布目录 `staticPublishPath: ./out`
-- ✅ **已优化**: 添加 `trailingSlash` 和相关静态站点优化
-- ✅ **已移除**: 不再需要 `PORT` 环境变量和 `startCommand`
+以下是在部署过程中遇到并解决的问题：
 
-## 预期结果
+1. **动态路由缺少 `generateStaticParams()`**
+   - 错误: `Page "/quiz/[chapterId]" is missing "generateStaticParams()" so it cannot be used with "output: export" config.`
+   - 解决: 为动态路由页面添加 `generateStaticParams()` 函数
 
-部署成功后，你的应用将以静态网站形式托管，支持:
-- 主页路由: `/`
-- 测验路由: `/quiz/1/`
-- 自动处理客户端路由
+2. **客户端组件与静态导出的冲突**
+   - 错误: 客户端组件无法导出服务器端函数
+   - 解决: 将 `/quiz/[chapterId]/page.tsx` 从客户端组件转换为服务器组件
 
-**重要**: 由于是静态导出，客户端路由将依赖 Next.js 的回退机制。
+3. **TypeScript 类型错误**
+   - 错误: `'quiz' is possibly 'null'.`
+   - 解决: 修改 `generateQuiz` 函数确保总是返回有效对象
+
+4. **静态导出时的运行时错误**
+   - 错误: `Cannot read properties of undefined (reading 'id')`
+   - 解决: 在 QuizRunner 组件中添加安全检查
+
+### 预期结果
+
+部署成功后，你将得到：
+
+- ✅ **主页**: `https://your-app-name.onrender.com/`
+- ✅ **测验页面**: `https://your-app-name.onrender.com/quiz/1`, `/quiz/2`, ..., `/quiz/15`
+- ✅ **404 页面**: `https://your-app-name.onrender.com/404`
+- ✅ **客户端路由**: 使用 Next.js 静态导出特性支持客户端导航
+
+### 注意事项
+
+- 所有测验页面在构建时预生成，提供最佳性能
+- 图片使用 `unoptimized: true` 配置以支持静态导出
+- 使用 `trailingSlash: true` 确保静态文件正确链接
+- 客户端路由正常工作，无需额外的服务器端支持
+
+### 测试部署
+
+构建完成后，你应该看到类似输出：
+
+```
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+└ ● /quiz/[chapterId]
+  ├ /quiz/1
+  ├ /quiz/2
+  ├ /quiz/3
+  └ [+12 more paths]
+
+○  (Static)  prerendered as static content
+●  (SSG)     prerendered as static HTML (uses generateStaticParams)
+```
+
+这表明所有页面都已成功预生成并可以静态部署。
